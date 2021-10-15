@@ -1,4 +1,4 @@
-package models
+package model
 
 import "time"
 
@@ -11,11 +11,11 @@ const (
 )
 
 type Task struct {
-	Count    uint    `json:"n"`
-	Delta    float32 `json:"d"`
-	First    float32 `json:"n1"`
-	Interval float32 `json:"I"`
-	TTL      float32 `json:"TTL"`
+	Count    uint    `json:"count" validate:"required,gte=0"`
+	Delta    float32 `json:"delta" validate:"required"`
+	First    float32 `json:"first" validate:"required"`
+	Interval float32 `json:"interval" validate:"required,gte=0"`
+	TTL      float32 `json:"ttl" validate:"required,gte=0"`
 }
 
 type TaskInfo struct {

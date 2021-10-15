@@ -23,15 +23,17 @@ type Server interface {
 
 // Server represents an HTTP server.
 type server struct {
-	log  logrus.Logger
-	serv *http.Server
-	port string
+	log     logrus.Logger
+	serv    *http.Server
+	encoder *encoder
+	port    string
 }
 
 func NewServer(log logrus.Logger, port string) Server {
 	return &server{
-		log:  log,
-		port: port,
+		log:     log,
+		encoder: newEncoder(),
+		port:    port,
 	}
 }
 
@@ -59,8 +61,8 @@ func (s *server) Close(ctx context.Context) error {
 func (s *server) Handler() http.Handler {
 	r := chi.NewRouter()
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("hi"))
+	r.Group(func(r chi.Router) {
+		r.Route("/tasks", newTasksHandler(s.encoder).Routes)
 	})
 
 	return r
