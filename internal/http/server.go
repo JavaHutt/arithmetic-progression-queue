@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/JavaHutt/arithmetic-progression-queue/internal/model"
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 )
@@ -21,19 +22,26 @@ type Server interface {
 	Handler() http.Handler
 }
 
-// Server represents an HTTP server.
-type server struct {
-	log     logrus.Logger
-	serv    *http.Server
-	encoder *encoder
-	port    string
+type taskService interface {
+	AddTask(task model.Task) error
+	GetTasks() ([]model.TaskInfo, error)
 }
 
-func NewServer(log logrus.Logger, port string) Server {
+// Server represents an HTTP server.
+type server struct {
+	log         logrus.Logger
+	serv        *http.Server
+	encoder     *encoder
+	port        string
+	taskService taskService
+}
+
+func NewServer(log logrus.Logger, port string, taskService taskService) Server {
 	return &server{
-		log:     log,
-		encoder: newEncoder(),
-		port:    port,
+		log:         log,
+		encoder:     newEncoder(),
+		port:        port,
+		taskService: taskService,
 	}
 }
 
@@ -62,7 +70,7 @@ func (s *server) Handler() http.Handler {
 	r := chi.NewRouter()
 
 	r.Group(func(r chi.Router) {
-		r.Route("/tasks", newTasksHandler(s.encoder).Routes)
+		r.Route("/tasks", newTasksHandler(s.encoder, s.taskService).Routes)
 	})
 
 	return r

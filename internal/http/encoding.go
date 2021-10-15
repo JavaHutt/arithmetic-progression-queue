@@ -32,6 +32,10 @@ func (e *encoder) Response(w http.ResponseWriter, response []byte) {
 	e.StatusResponse(w, response, http.StatusOK)
 }
 
+func (e *encoder) StatusOK(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusOK)
+}
+
 func (e *encoder) StatusResponse(w http.ResponseWriter, response []byte, status int) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)

@@ -10,14 +10,16 @@ import (
 )
 
 type tasksHandler struct {
-	encoder  *encoder
-	validate *validator.Validate
+	encoder     *encoder
+	validate    *validator.Validate
+	taskService taskService
 }
 
-func newTasksHandler(encoder *encoder) *tasksHandler {
+func newTasksHandler(encoder *encoder, taskService taskService) *tasksHandler {
 	return &tasksHandler{
-		encoder:  encoder,
-		validate: validator.New(),
+		encoder:     encoder,
+		validate:    validator.New(),
+		taskService: taskService,
 	}
 }
 
@@ -43,5 +45,7 @@ func (h *tasksHandler) newTaskHandler(writer http.ResponseWriter, request *http.
 		return
 	}
 
-	writer.Write([]byte("not implemented yet"))
+	h.taskService.AddTask(task)
+
+	h.encoder.StatusOK(writer)
 }

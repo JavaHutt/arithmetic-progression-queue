@@ -9,6 +9,9 @@ import (
 )
 
 const (
+	// HTTP Server port restrictions
+	httpServerPortMinValue = 1
+	httpServerPortMaxValue = 65535
 
 	// HTTP Server shutdown timeout limits in seconds
 	httpShutdownTimeoutMinValue = 0
@@ -20,6 +23,7 @@ const (
 )
 
 type Config interface {
+	HTTPServerPort() string
 	HTTPShutdownTimeout() time.Duration
 	ServiceShutdownTimeout() time.Duration
 }
@@ -66,6 +70,7 @@ func configureViper() (*configData, error) {
 }
 
 func setDefaults() error {
+	viper.SetDefault("HTTP_SERVER_PORT", 8001)
 	viper.SetDefault("HTTP_SHUTDOWN_TIMEOUT", 3)
 	viper.SetDefault("SERVICE_SHUTDOWN_TIMEOUT", 10)
 
@@ -88,18 +93,26 @@ func loadConfigToViper(path string) error {
 }
 
 type configData struct {
+	HTTPServerPort_         int `mapstructure:"HTTP_SERVER_PORT"`
 	HTTPShutdownTimeout_    int `mapstructure:"HTTP_SHUTDOWN_TIMEOUT"`
 	ServiceShutdownTimeout_ int `mapstructure:"SERVICE_SHUTDOWN_TIMEOUT"`
 }
 
 func (cfg *configData) validate() (err error) {
+	if cfg.HTTPServerPort_ < httpServerPortMinValue || cfg.HTTPServerPort_ > httpServerPortMaxValue {
+		err = fmt.Errorf("http server port (%d) is out of range: %w", cfg.HTTPShutdownTimeout_, err)
+	}
 	if cfg.HTTPShutdownTimeout_ < httpShutdownTimeoutMinValue || cfg.HTTPShutdownTimeout_ > httpShutdownTimeoutMaxValue {
-		err = fmt.Errorf("http shutdown timeout (%d) is out of range: %w", cfg.HTTPShutdownTimeout_, err)
+		err = fmt.Errorf("http shutdown timeout (%d) is out of range: %w", cfg.HTTPServerPort_, err)
 	}
 	if cfg.ServiceShutdownTimeout_ < serviceShutdownTimeoutMinValue || cfg.ServiceShutdownTimeout_ > serviceShutdownTimeoutMaxValue {
 		err = fmt.Errorf("service shutdown timeout (%d) is out of range: %w", cfg.ServiceShutdownTimeout_, err)
 	}
 	return
+}
+
+func (cfg *configData) HTTPServerPort() string {
+	return fmt.Sprint(cfg.HTTPServerPort_)
 }
 
 func (cfg *configData) HTTPShutdownTimeout() time.Duration {

@@ -7,6 +7,7 @@ import (
 	"github.com/JavaHutt/arithmetic-progression-queue/config"
 	"github.com/JavaHutt/arithmetic-progression-queue/internal/action"
 	"github.com/JavaHutt/arithmetic-progression-queue/internal/http"
+	"github.com/JavaHutt/arithmetic-progression-queue/internal/service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,7 +20,8 @@ func main() {
 
 	logger := logrus.New()
 
-	server := http.NewServer(*logger, "8001")
+	taskService := service.NewTaskService(*logger)
+	server := http.NewServer(*logger, cfg.HTTPServerPort(), taskService)
 
 	doneChannel := make(chan bool)
 	_ = doneChannel
