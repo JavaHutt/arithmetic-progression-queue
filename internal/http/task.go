@@ -45,7 +45,10 @@ func (h *tasksHandler) newTaskHandler(writer http.ResponseWriter, request *http.
 		return
 	}
 
-	h.taskService.AddTask(task)
+	if err := h.taskService.AddTask(task); err != nil {
+		h.encoder.Error(writer, err, http.StatusInternalServerError)
+		return
+	}
 
 	h.encoder.StatusOK(writer)
 }

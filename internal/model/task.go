@@ -11,6 +11,7 @@ const (
 )
 
 type Task struct {
+	ID       string  `json:"id"`
 	Count    uint    `json:"count" validate:"required,gte=0"`
 	Delta    float32 `json:"delta" validate:"required"`
 	First    float32 `json:"first" validate:"required"`
