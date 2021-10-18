@@ -1,6 +1,10 @@
 package action
 
 import (
+	"fmt"
+	"time"
+
+	"github.com/JavaHutt/arithmetic-progression-queue/internal/helpers"
 	"github.com/JavaHutt/arithmetic-progression-queue/internal/model"
 	"github.com/sirupsen/logrus"
 )
@@ -13,8 +17,7 @@ type arithmeticProcessor struct {
 	log              logrus.Logger
 	concurrencyLimit int
 	waitingQueue     WaitingQueue
-	inProgressChan   chan model.TaskInfo
-	inProgressList   []*model.TaskInfo
+	inProgress       InProgress
 	finishedList     FinishedList
 }
 
@@ -23,7 +26,7 @@ func NewArithmeticProcessor(log logrus.Logger, concurrencyLimit int) ArithmeticP
 		log:              log,
 		concurrencyLimit: concurrencyLimit,
 		waitingQueue:     NewWaitingQueue(),
-		inProgressList:   make([]*model.TaskInfo, 0, concurrencyLimit),
+		inProgress:       NewInProgress(concurrencyLimit),
 		finishedList:     NewFinishedList(),
 	}
 }
@@ -34,14 +37,36 @@ func (a arithmeticProcessor) StartWorkers() {
 	}
 }
 
-func (a arithmeticProcessor) worker(i int) {
+func (a *arithmeticProcessor) worker(i int) {
 	a.log.Infof("#%d worker has started", i)
-	for task := range a.inProgressChan {
-		a.inProgressList[i] = &task
+	for task := range a.inProgress.Get() {
+		a.inProgress.Put(i, task)
 		a.log.Infof("task %s is now in progress, handled by worker #%d", task.ID, i)
 		// TODO implement process method
-		a.inProgressList[i] = nil
-		a.finishedList.Insert(task)
+		a.inProgress.Remove(i)
+		a.finishedList.Insert(*task)
 		a.log.Infof("#%d worker has done with task %s", i, task.ID)
 	}
+}
+
+func (a arithmeticProcessor) processTask(task *model.TaskInfo) {
+	ticker := time.NewTicker(helpers.GetTimeDuration(task.Interval))
+	stop := make(chan struct{})
+
+	go func() {
+		for range ticker.C {
+			if task.Count == 0 {
+				stop <- struct{}{}
+				break
+			}
+
+			task.Count--
+		}
+	}()
+
+	go func() {
+		<-stop
+		fmt.Println("stopped")
+		ticker.Stop()
+	}()
 }

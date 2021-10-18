@@ -1,9 +1,9 @@
 package action
 
 import (
-	"math"
 	"time"
 
+	"github.com/JavaHutt/arithmetic-progression-queue/internal/helpers"
 	"github.com/JavaHutt/arithmetic-progression-queue/internal/model"
 )
 
@@ -57,8 +57,7 @@ func (list *finishedList) Delete(ID string) {
 }
 
 func (list *finishedList) deleteAfterTTL(n *node) {
-	integer, float := math.Modf(float64(n.value.TTL))
-	timeout := time.Second*time.Duration(integer) + time.Millisecond*time.Duration(float)
+	timeout := helpers.GetTimeDuration(n.value.TTL)
 	<-time.After(timeout)
 	list.Delete(n.value.ID)
 }
