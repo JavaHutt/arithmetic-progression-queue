@@ -1,0 +1,97 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Simple REST API server for arithmetic progression queue",
+    "version": "1.0.0",
+    "title": "Arithmetic Processor server"
+  },
+  "host": "localhost:8000",
+  "basePath": "/api/v1",
+  "tags": [
+    {
+      "name": "tasks",
+      "description": "Operations about tasks"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/tasks": {
+      "get": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Gets all tasks",
+        "description": "",
+        "operationId": "getTasks",
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "tasks"
+        ],
+        "summary": "Create task",
+        "description": "",
+        "operationId": "createTask",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Created task object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Task"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Task": {
+      "type": "object",
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "uint"
+        },
+        "delta": {
+          "type": "integer"
+        },
+        "first": {
+          "type": "integer"
+        },
+        "interval": {
+          "type": "integer",
+          "format": "uint"
+        },
+        "ttl": {
+          "type": "integer",
+          "format": "uint"
+        }
+      }
+    }
+  }
+}
