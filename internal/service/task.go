@@ -28,6 +28,7 @@ func NewTaskService(log logrus.Logger) TaskService {
 func (s service) AddTask(task model.Task) error {
 	id, err := s.shortID.Generate()
 	if err != nil {
+		s.log.WithError(err).Info("unable to generate ID")
 		return err
 	}
 
@@ -39,7 +40,7 @@ func (s service) AddTask(task model.Task) error {
 		"first":    task.First,
 		"interval": task.Interval,
 		"TTL":      task.TTL,
-	}).Infof("new task was recieved, new id given: %s", id)
+	}).Infof("new task was recieved, new ID given: %s", id)
 
 	return nil
 }
