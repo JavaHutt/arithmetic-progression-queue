@@ -9,6 +9,9 @@ import (
 )
 
 const (
+	// Arithmetic Processor minimal number of workers
+	concurrencyLimitMinValue = 1
+
 	// HTTP Server port restrictions
 	httpServerPortMinValue = 1
 	httpServerPortMaxValue = 65535
@@ -23,6 +26,7 @@ const (
 )
 
 type Config interface {
+	ConcurrencyLimit() int
 	HTTPServerPort() string
 	HTTPShutdownTimeout() time.Duration
 	ServiceShutdownTimeout() time.Duration
@@ -70,6 +74,7 @@ func configureViper() (*configData, error) {
 }
 
 func setDefaults() error {
+	viper.SetDefault("CONCURRENCY_LIMIT", 4)
 	viper.SetDefault("HTTP_SERVER_PORT", 8001)
 	viper.SetDefault("HTTP_SHUTDOWN_TIMEOUT", 3)
 	viper.SetDefault("SERVICE_SHUTDOWN_TIMEOUT", 10)
@@ -93,12 +98,16 @@ func loadConfigToViper(path string) error {
 }
 
 type configData struct {
+	ConcurrencyLimit_       int `mapstructure:"CONCURRENCY_LIMIT"`
 	HTTPServerPort_         int `mapstructure:"HTTP_SERVER_PORT"`
 	HTTPShutdownTimeout_    int `mapstructure:"HTTP_SHUTDOWN_TIMEOUT"`
 	ServiceShutdownTimeout_ int `mapstructure:"SERVICE_SHUTDOWN_TIMEOUT"`
 }
 
 func (cfg *configData) validate() (err error) {
+	if cfg.ConcurrencyLimit_ < concurrencyLimitMinValue {
+		err = fmt.Errorf("concurrency limit (%d) is too low: %w", cfg.HTTPShutdownTimeout_, err)
+	}
 	if cfg.HTTPServerPort_ < httpServerPortMinValue || cfg.HTTPServerPort_ > httpServerPortMaxValue {
 		err = fmt.Errorf("http server port (%d) is out of range: %w", cfg.HTTPShutdownTimeout_, err)
 	}
@@ -109,6 +118,10 @@ func (cfg *configData) validate() (err error) {
 		err = fmt.Errorf("service shutdown timeout (%d) is out of range: %w", cfg.ServiceShutdownTimeout_, err)
 	}
 	return
+}
+
+func (cfg *configData) ConcurrencyLimit() int {
+	return cfg.ConcurrencyLimit_
 }
 
 func (cfg *configData) HTTPServerPort() string {

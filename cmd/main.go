@@ -20,6 +20,9 @@ func main() {
 
 	logger := logrus.New()
 
+	arithmeticProcessor := action.NewArithmeticProcessor(*logger, cfg.ConcurrencyLimit())
+	arithmeticProcessor.StartWorkers()
+
 	taskService := service.NewTaskService(*logger)
 	server := http.NewServer(*logger, cfg.HTTPServerPort(), taskService)
 
