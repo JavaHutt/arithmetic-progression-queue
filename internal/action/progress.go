@@ -1,7 +1,7 @@
 package action
 
 import (
-	"fmt"
+	"time"
 
 	"github.com/JavaHutt/arithmetic-progression-queue/internal/model"
 )
@@ -26,7 +26,6 @@ func NewInProgress(concurrencyLimit int) *inProgress {
 
 func (p inProgress) Get() []model.TaskInfo {
 	var result []model.TaskInfo
-	fmt.Println("get in progress list:", p.inProgressList)
 	for _, v := range p.inProgressList {
 		if v != nil {
 			result = append(result, *v)
@@ -36,7 +35,10 @@ func (p inProgress) Get() []model.TaskInfo {
 }
 
 func (p *inProgress) Put(i int, task *model.TaskInfo) {
+	now := time.Now()
+	task.StartedAt = &now
 	task.Status = model.InProgress
+
 	p.inProgressList[i] = task
 }
 

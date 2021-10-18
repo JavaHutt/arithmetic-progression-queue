@@ -5,6 +5,7 @@ import (
 
 	"github.com/JavaHutt/arithmetic-progression-queue/internal/helpers"
 	"github.com/JavaHutt/arithmetic-progression-queue/internal/model"
+	"github.com/sirupsen/logrus"
 )
 
 type FinishedList interface {
@@ -19,12 +20,15 @@ type node struct {
 }
 
 type finishedList struct {
+	log    logrus.Logger
 	head   *node
 	length int
 }
 
-func NewFinishedList() FinishedList {
-	return &finishedList{}
+func NewFinishedList(log logrus.Logger) FinishedList {
+	return &finishedList{
+		log: log,
+	}
 }
 
 func (list finishedList) GetTasks() []model.TaskInfo {
@@ -45,16 +49,22 @@ func (list finishedList) GetTasks() []model.TaskInfo {
 }
 
 func (list *finishedList) Insert(task *model.TaskInfo) {
+	now := time.Now()
+	task.FilnishedAt = &now
+	task.Status = model.Finished
+
 	current := list.head
 	newNode := &node{task, current}
 	list.head = newNode
 	list.length++
+
 	go list.deleteAfterTTL(newNode)
 }
 
 func (list *finishedList) Delete(ID string) {
 	previous := list.head
 	if previous.value.ID == ID {
+		list.log.Infof("%s time came and it is gone forever", ID)
 		list.head = previous.next
 		list.length--
 		return
@@ -69,7 +79,7 @@ func (list *finishedList) Delete(ID string) {
 		previous = current
 		current = current.next
 	}
-
+	list.log.Infof("%s time came and it is gone forever", ID)
 	previous.next = current.next
 	list.length--
 }
