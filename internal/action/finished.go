@@ -8,12 +8,13 @@ import (
 )
 
 type FinishedList interface {
-	Insert(task model.TaskInfo)
+	Insert(task *model.TaskInfo)
 	Delete(ID string)
+	GetTasks() []model.TaskInfo
 }
 
 type node struct {
-	value model.TaskInfo
+	value *model.TaskInfo
 	next  *node
 }
 
@@ -26,7 +27,24 @@ func NewFinishedList() FinishedList {
 	return &finishedList{}
 }
 
-func (list *finishedList) Insert(task model.TaskInfo) {
+func (list finishedList) GetTasks() []model.TaskInfo {
+	var result []model.TaskInfo
+
+	current := list.head
+
+	if current == nil {
+		return result
+	}
+
+	for current.next != nil {
+		result = append(result, *current.value)
+
+		current = current.next
+	}
+	return result
+}
+
+func (list *finishedList) Insert(task *model.TaskInfo) {
 	current := list.head
 	newNode := &node{task, current}
 	list.head = newNode

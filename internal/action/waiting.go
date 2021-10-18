@@ -14,11 +14,14 @@ type WaitingQueue interface {
 
 type waitingQueue struct {
 	sync.Mutex
-	tasks []*model.TaskInfo
+	tasks      []*model.TaskInfo
+	inProgress InProgress
 }
 
-func NewWaitingQueue() WaitingQueue {
-	return &waitingQueue{}
+func NewWaitingQueue(inProgress InProgress) WaitingQueue {
+	return &waitingQueue{
+		inProgress: inProgress,
+	}
 }
 
 func (q *waitingQueue) Enqueue(task *model.TaskInfo) {
@@ -38,7 +41,6 @@ func (q *waitingQueue) Dequeue() *model.TaskInfo {
 	for i := range q.tasks {
 		q.tasks[i].QueueNumber--
 	}
-
 	return task
 }
 

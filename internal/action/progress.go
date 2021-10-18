@@ -1,37 +1,45 @@
 package action
 
 import (
+	"fmt"
+
 	"github.com/JavaHutt/arithmetic-progression-queue/internal/model"
 )
 
 type InProgress interface {
+	Get() []model.TaskInfo
 	Put(i int, task *model.TaskInfo)
 	Remove(i int)
-	Get() <-chan *model.TaskInfo
 }
 
 type inProgress struct {
-	inProgressChan chan *model.TaskInfo
+	InProgressChan chan *model.TaskInfo
 	inProgressList []*model.TaskInfo
 }
 
-func NewInProgress(concurrencyLimit int) InProgress {
+func NewInProgress(concurrencyLimit int) *inProgress {
 	return &inProgress{
-		inProgressChan: make(chan *model.TaskInfo),
-		inProgressList: make([]*model.TaskInfo, 0, concurrencyLimit),
+		InProgressChan: make(chan *model.TaskInfo),
+		inProgressList: make([]*model.TaskInfo, concurrencyLimit),
 	}
+}
+
+func (p inProgress) Get() []model.TaskInfo {
+	var result []model.TaskInfo
+	fmt.Println("get in progress list:", p.inProgressList)
+	for _, v := range p.inProgressList {
+		if v != nil {
+			result = append(result, *v)
+		}
+	}
+	return result
 }
 
 func (p *inProgress) Put(i int, task *model.TaskInfo) {
 	task.Status = model.InProgress
 	p.inProgressList[i] = task
-	p.inProgressChan <- task
 }
 
 func (p *inProgress) Remove(i int) {
 	p.inProgressList[i] = nil
-}
-
-func (p inProgress) Get() <-chan *model.TaskInfo {
-	return p.inProgressChan
 }
