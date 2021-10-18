@@ -11,6 +11,8 @@ import (
 
 type ArithmeticProcessor interface {
 	StartWorkers()
+	AddTask(task *model.TaskInfo)
+	GetTasks() []model.TaskInfo
 }
 
 type arithmeticProcessor struct {
@@ -29,6 +31,14 @@ func NewArithmeticProcessor(log logrus.Logger, concurrencyLimit int) ArithmeticP
 		inProgress:       NewInProgress(concurrencyLimit),
 		finishedList:     NewFinishedList(),
 	}
+}
+
+func (a arithmeticProcessor) AddTask(task *model.TaskInfo) {
+	a.waitingQueue.Enqueue(task)
+}
+
+func (a arithmeticProcessor) GetTasks() []model.TaskInfo {
+	return a.waitingQueue.GetTasks()
 }
 
 func (a arithmeticProcessor) StartWorkers() {

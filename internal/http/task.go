@@ -29,7 +29,9 @@ func (h *tasksHandler) Routes(r chi.Router) {
 }
 
 func (h *tasksHandler) getTasksInfoHandler(writer http.ResponseWriter, request *http.Request) {
-	writer.Write([]byte("not implemented yet"))
+	tasks := h.taskService.GetTasks()
+
+	h.encoder.JSONResponse(writer, tasks)
 }
 
 func (h *tasksHandler) newTaskHandler(writer http.ResponseWriter, request *http.Request) {

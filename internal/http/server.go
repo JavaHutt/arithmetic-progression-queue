@@ -24,7 +24,7 @@ type Server interface {
 
 type taskService interface {
 	AddTask(task model.Task) error
-	GetTasks() ([]model.TaskInfo, error)
+	GetTasks() []model.TaskInfo
 }
 
 // Server represents an HTTP server.

@@ -1,6 +1,8 @@
 package action
 
-import "github.com/JavaHutt/arithmetic-progression-queue/internal/model"
+import (
+	"github.com/JavaHutt/arithmetic-progression-queue/internal/model"
+)
 
 type InProgress interface {
 	Put(i int, task *model.TaskInfo)
@@ -23,6 +25,7 @@ func NewInProgress(concurrencyLimit int) InProgress {
 func (p *inProgress) Put(i int, task *model.TaskInfo) {
 	task.Status = model.InProgress
 	p.inProgressList[i] = task
+	p.inProgressChan <- task
 }
 
 func (p *inProgress) Remove(i int) {

@@ -23,7 +23,7 @@ func main() {
 	arithmeticProcessor := action.NewArithmeticProcessor(*logger, cfg.ConcurrencyLimit())
 	arithmeticProcessor.StartWorkers()
 
-	taskService := service.NewTaskService(*logger)
+	taskService := service.NewTaskService(*logger, arithmeticProcessor)
 	server := http.NewServer(*logger, cfg.HTTPServerPort(), taskService)
 
 	doneChannel := make(chan bool)

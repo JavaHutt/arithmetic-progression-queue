@@ -25,6 +25,6 @@ type TaskInfo struct {
 	Status           TaskStatus `json:"status"`
 	CurrentIteration int        `json:"current_iteration"`
 	CreatedAt        time.Time  `json:"created_at"`
-	StartedAt        time.Time  `json:"started_at"`
-	FilnishedAt      time.Time  `json:"finished_at"`
+	StartedAt        *time.Time `json:"started_at"`
+	FilnishedAt      *time.Time `json:"finished_at"`
 }
