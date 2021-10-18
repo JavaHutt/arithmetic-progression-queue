@@ -50,6 +50,7 @@ func (a arithmeticProcessor) GetTasks() []model.TaskInfo {
 }
 
 func (a arithmeticProcessor) StartWorkers() {
+	a.log.Infof("Concurrency limit: %d, starting workers...", a.concurrencyLimit)
 	for i := 0; i < a.concurrencyLimit; i++ {
 		go a.worker(i)
 	}

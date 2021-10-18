@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/JavaHutt/arithmetic-progression-queue/config"
 	"github.com/JavaHutt/arithmetic-progression-queue/internal/action"
@@ -18,9 +19,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	concurrencyLimit := cfg.ConcurrencyLimit()
+	if len(os.Args) > 1 {
+		concurrencyLimit, err = strconv.Atoi(os.Args[1])
+		if err != nil {
+			concurrencyLimit = cfg.ConcurrencyLimit()
+		}
+	}
+
 	logger := logrus.New()
 
-	arithmeticProcessor := action.NewArithmeticProcessor(*logger, cfg.ConcurrencyLimit())
+	arithmeticProcessor := action.NewArithmeticProcessor(*logger, concurrencyLimit)
 	arithmeticProcessor.StartWorkers()
 
 	taskService := service.NewTaskService(*logger, arithmeticProcessor)
